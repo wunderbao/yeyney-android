@@ -1,0 +1,5 @@
+/build
+google-services.json
+
+# Access tokens file
+src/main/res/values/ids.xml
