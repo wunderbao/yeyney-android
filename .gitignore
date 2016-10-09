@@ -46,3 +46,6 @@ captures/
 
 # Other
 .DS_Store
+
+# Android key
+*.key
