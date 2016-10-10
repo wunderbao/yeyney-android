@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +25,7 @@ import java.io.File;
 public class ShareActivity extends Activity {
 
     private static final String TAG = "ShareActivity";
+    private static final int PICK_CONTACT = 512;
 
     private FirebaseStorage storage;
     private ImageView imageView;
@@ -84,20 +84,26 @@ public class ShareActivity extends Activity {
                         Log.d(TAG, "Task-downloadUrl: " + taskSnapshot.getDownloadUrl());
                         Log.d(TAG, "Task-uploadSessionUri: " + taskSnapshot.getUploadSessionUri());
 //                        RestApi.postMessage(imagesRef.get);
-                        SmsManager manager = SmsManager.getDefault();
-                        manager.sendTextMessage("47859817", null, "Hello world!\n" + taskSnapshot.getDownloadUrl(), null, null);
+//                        SmsManager manager = SmsManager.getDefault();
+//                        manager.sendTextMessage("47859817", null, "Hello world!\n" + taskSnapshot.getDownloadUrl(), null, null);
 //                        finish();
+                        showPhoneNumbers();
                     }
                 });
             }
         });
     }
 
+    private void showPhoneNumbers() {
+        startActivity(new Intent(this, ContactsActivity.class));
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == Activity.RESULT_OK) {
+        if (requestCode == PICK_CONTACT) {
+        } else if (resultCode == Activity.RESULT_OK) {
             finish(); // TODO: Not called
         }
     }

@@ -21,6 +21,9 @@ public class MainActivity extends AuthActivity {
             if (checkSelfPermission(Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_DENIED) {
                 Log.d(TAG, "Requesting permission for SMS");
                 requestPermissions(new String[]{Manifest.permission.SEND_SMS}, 256);
+            } else if (checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_DENIED) {
+                Log.d(TAG, "Requesting permission for SMS");
+                requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 256);
             } else {
                 gotoNextActivity();
             }
