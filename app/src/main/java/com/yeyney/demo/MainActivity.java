@@ -31,7 +31,6 @@ public class MainActivity extends AuthActivity {
     }
 
     private void gotoNextActivity() {
-        Log.d(TAG, "" + isSignedIn);
         if (isSignedIn) {
             startActivity(new Intent(MainActivity.this, YeyNeyActivity.class));
         } else {

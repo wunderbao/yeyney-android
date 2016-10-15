@@ -60,6 +60,7 @@ public class GoogleSignInActivity extends AuthActivity implements GoogleApiClien
             // There's no immediate result ready, displays some progress indicator and waits for the
             // async callback.
             //showProgressIndicator();
+            Toast.makeText(this, "Supposed to be progress indicator as we log you in", Toast.LENGTH_SHORT).show();
             pendingResult.setResultCallback(new ResultCallback<GoogleSignInResult>() {
                 @Override
                 public void onResult(@NonNull GoogleSignInResult result) {
@@ -167,7 +168,7 @@ public class GoogleSignInActivity extends AuthActivity implements GoogleApiClien
         } else if (id == R.id.button_google_sign_out) {
             signOut();
         } else if (id == R.id.button_google_share) {
-            startActivity(new Intent(GoogleSignInActivity.this, YeyNeyActivity.class));
+            startActivity(new Intent(this, YeyNeyActivity.class));
         }
     }
 }

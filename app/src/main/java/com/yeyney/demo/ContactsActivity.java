@@ -1,105 +1,75 @@
 package com.yeyney.demo;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.util.Log;
-import android.view.LayoutInflater;
+import android.provider.ContactsContract.Contacts;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.CursorAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 
-public class ContactsActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
+public class ContactsActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor>, TextWatcher, View.OnClickListener {
 
-    /*
-     * Defines an array that contains column names to move from
-     * the Cursor to the ListView.
-     */
-    private final static String[] FROM_COLUMNS = {
-            ContactsContract.Contacts.DISPLAY_NAME
+    public static final int SEND_SMS_REQUEST = 128;
+
+    private static final String[] PROJECTION = {
+            Contacts._ID,
+            Contacts.DISPLAY_NAME,
+            Contacts.HAS_PHONE_NUMBER
+
     };
-    /*
-     * Defines an array that contains resource ids for the layout views
-     * that get the Cursor column contents. The id is pre-defined in
-     * the Android framework, so it is prefaced with "android.R.id"
-     */
-    private final static int[] TO_IDS = {
-            android.R.id.text1
-    };
-    private static final String TAG = "ContactsActivity";
-    // Define global mutable variables
-    // Define a ListView object
-    ListView mContactsList;
-    // Define variables for the contact the user selects
-    // The contact's _ID value
-    long mContactId;
-    // The contact's LOOKUP_KEY
-    String mContactKey;
-    // A content URI for the selected contact
-    Uri mContactUri;
-    // An adapter that binds the result Cursor to the ListView
-    private SimpleCursorAdapter mCursorAdapter;
+    private static final String SELECTION = "HAS_PHONE_NUMBER > 0";
+    private static final String SELECTION_SEARCH = "DISPLAY_NAME like ? AND " + SELECTION;
+    private static final String ORDER_BY = "DISPLAY_NAME COLLATE UNICODE";
+    private static final int SEARCH_AFTER_TEXT_CHANGED = 1024;
 
-    // The column index for the _ID column
-    private static final int CONTACT_ID_INDEX = 0;
-    // The column index for the LOOKUP_KEY column
-    private static final int LOOKUP_KEY_INDEX = 1;
+    private ListView contactsList;
+    private CursorAdapter mCursorAdapter;
+    private String mSearchString = "";
 
-
-    // Empty public constructor, required by the system
-    public ContactsActivity() {}
+    public ContactsActivity() {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.contacts_list_view);
-        mContactsList = (ListView) findViewById(android.R.id.list);
+        setContentView(R.layout.activity_contacts);
+
+        EditText searchField = (EditText) findViewById(R.id.editText_contacts_search);
+        searchField.addTextChangedListener(this);
+
+        contactsList = (ListView) findViewById(R.id.listview_contacts);
 
         getLoaderManager().initLoader(0, null, this);
 
-        // Gets a CursorAdapter
-        Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,
-                new String[]{ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts.HAS_PHONE_NUMBER},
-                "HAS_PHONE_NUMBER > 0",
+        Cursor cursor = getContentResolver().query(Contacts.CONTENT_URI,
+                PROJECTION,
+                SELECTION,
                 null,
-                "DISPLAY_NAME COLLATE UNICODE");
-//        if (cursor != null) {
-//            cursor.moveToFirst();
-//            while (cursor.moveToNext()) {
-//                Log.d(TAG, "DISPLAY_NAME:" + String.valueOf(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))));
-//                Log.d(TAG, "HAS_PHONE_NUMER: " + String.valueOf(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))));
-//                String displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-//                Cursor c = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.TYPE}, " DISPLAY_NAME = ?", new String[]{displayName}, null);
-//                while (c.moveToNext()) {
-//                    switch (c.getInt(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE))) {
-//                        case ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE:
-//                        case ContactsContract.CommonDataKinds.Phone.TYPE_HOME:
-//                        case ContactsContract.CommonDataKinds.Phone.TYPE_WORK:
-//                        case ContactsContract.CommonDataKinds.Phone.TYPE_OTHER:
-//                    }
-//                    Log.d(TAG, c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
-//                }
-//                c.close();
-//            }
-//            cursor.close();
-//        }
-        mCursorAdapter = new SimpleCursorAdapter(this, R.layout.contacts_list_item, cursor, FROM_COLUMNS, TO_IDS, 0);
-        // Sets the adapter for the ListView
-        mContactsList.setAdapter(mCursorAdapter);
-        mContactsList.setOnItemClickListener(this);
+                ORDER_BY);
+        mCursorAdapter = new ContactsAdapter(this, cursor, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        contactsList.setAdapter(mCursorAdapter);
+
+        findViewById(R.id.button_contacts_send).setOnClickListener(this);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
-        return null;
+        return new CursorLoader(
+                this,
+                Contacts.CONTENT_URI,
+                PROJECTION,
+                SELECTION_SEARCH,
+                new String[]{"%" + mSearchString + "%"},
+                ORDER_BY
+        );
     }
 
     @Override
@@ -113,7 +83,26 @@ public class ContactsActivity extends Activity implements LoaderManager.LoaderCa
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View item, int position, long rowID) {
-        Log.d(TAG, String.valueOf(parent.getItemAtPosition(position)));
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+    }
+
+    @Override
+    public void afterTextChanged(Editable editable) {
+        mSearchString = editable.toString();
+        getLoaderManager().restartLoader(SEARCH_AFTER_TEXT_CHANGED, null, this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        Intent intent = new Intent();
+        intent.putExtra("Hello", "world!");
+        setResult(RESULT_OK, intent);
+        finish();
     }
 }
