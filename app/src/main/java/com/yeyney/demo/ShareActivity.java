@@ -18,6 +18,8 @@ import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.messagebird.exceptions.GeneralException;
+import com.messagebird.exceptions.UnauthorizedException;
 
 import java.io.File;
 
@@ -55,43 +57,52 @@ public class ShareActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == ContactsActivity.SEND_SMS_REQUEST) {
-            Log.d(TAG, data.getStringExtra("Hello"));
+            if (resultCode == RESULT_OK) {
+                Log.d(TAG, data.getStringExtra("Hello"));
 
-            StorageReference storageRef = storage.getReferenceFromUrl("gs://yeyney-demo.appspot.com");
-            Uri file = Uri.fromFile(new File(currentPhotoPath));
-            final StorageReference imagesRef = storageRef.child("test-images/" + file.getLastPathSegment());
-            UploadTask uploadTask = imagesRef.putFile(file);
+                StorageReference storageRef = storage.getReferenceFromUrl("gs://yeyney-demo.appspot.com");
+                Uri file = Uri.fromFile(new File(currentPhotoPath));
+                final StorageReference imagesRef = storageRef.child("test-images/" + file.getLastPathSegment());
+                UploadTask uploadTask = imagesRef.putFile(file);
 
-            // Observe state change events such as progress, pause, and resume
-            Toast.makeText(this, "Starting to upload image", Toast.LENGTH_SHORT).show();
-            uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                    double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                    Log.d(TAG, "Upload is " + progress + "% done");
-                }
-            }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                    Log.d(TAG, "Upload is paused");
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.d(TAG, "Upload failed");
-                }
-            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Log.d(TAG, "Upload success");
-                    Log.d(TAG, "Name: " + imagesRef.getName());
-                    Log.d(TAG, "Path: " + imagesRef.getPath());
-                    Log.d(TAG, "Task-downloadUrl: " + taskSnapshot.getDownloadUrl());
-                    // SMSApi.sendSMS(listOfNumbers, customMessage, imageRef);
-                    // cancelProgressBar();
-                    // finish();
-                }
-            });
+                // Observe state change events such as progress, pause, and resume
+                Toast.makeText(this, "Starting to upload image", Toast.LENGTH_SHORT).show();
+                uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                        Log.d(TAG, "Upload is " + progress + "% done");
+                    }
+                }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
+                        Log.d(TAG, "Upload is paused");
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Upload failed");
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Log.d(TAG, "Upload success");
+                        Log.d(TAG, "Name: " + imagesRef.getName());
+                        Log.d(TAG, "Path: " + imagesRef.getPath());
+                        Log.d(TAG, "Task-downloadUrl: " + taskSnapshot.getDownloadUrl());
+                        try {
+                            String customMessage = "Hello user! I'm thinking about buying this. Yey or Ney?!" + imagesRef.getPath();
+                            SMSApi.sendSMS("+4747859817", customMessage);
+                        } catch (UnauthorizedException e) {
+                            e.printStackTrace();
+                        } catch (GeneralException e) {
+                            e.printStackTrace();
+                        }
+                        // cancelProgressBar();
+                        // finish();
+                    }
+                });
+            }
         }
     }
 }

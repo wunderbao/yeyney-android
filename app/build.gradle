@@ -25,6 +25,15 @@ android {
             keyPassword "yeyney2016"
         }
     }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/ASL2.0'
+    }
 }
 
 dependencies {
@@ -37,6 +46,7 @@ dependencies {
     compile 'com.android.support:design:24.2.1'
     testCompile 'junit:junit:4.12'
     compile 'com.googlecode.libphonenumber:libphonenumber:7.2.2'
+    compile 'com.messagebird:messagebird-api:1.3.0'
 
     // Firebase
     compile 'com.google.firebase:firebase-auth:9.6.1'

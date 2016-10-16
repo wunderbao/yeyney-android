@@ -3,11 +3,9 @@ package com.yeyney.demo;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
@@ -18,7 +16,6 @@ import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.util.HashMap;
 
-import static android.provider.ContactsContract.CALLER_IS_SYNCADAPTER;
 import static android.provider.ContactsContract.CommonDataKinds.Phone;
 import static android.provider.ContactsContract.Contacts;
 
