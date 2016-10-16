@@ -1,5 +1,6 @@
 package com.yeyney.demo;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,17 +24,18 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-public class GoogleSignInActivity extends AuthActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
+public class GoogleSignInActivity extends AuthActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "GoogleSignInActivity";
-
     private static final int RC_SIGN_IN = 256;
+
     private GoogleApiClient googleApiClient;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_google_sign_in);
+        setContentView(R.layout.activity_logo);
 
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -48,31 +50,61 @@ public class GoogleSignInActivity extends AuthActivity implements GoogleApiClien
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
-        OptionalPendingResult<GoogleSignInResult> pendingResult =
-                Auth.GoogleSignInApi.silentSignIn(googleApiClient);
+        OptionalPendingResult<GoogleSignInResult> pendingResult = Auth.GoogleSignInApi.silentSignIn(googleApiClient);
         if (pendingResult.isDone()) {
+            Log.d(TAG, "There's immediate result available.");
             gotGoogleSignInResult(pendingResult.get());
-            // There's immediate result available.
-            //updateButtonsAndStatusFromSignInResult(pendingResult.get());
         } else {
-            // There's no immediate result ready, displays some progress indicator and waits for the
-            // async callback.
-            //showProgressIndicator();
-            Toast.makeText(this, "Supposed to be progress indicator as we log you in", Toast.LENGTH_SHORT).show();
+            showProgressIndicator();
             pendingResult.setResultCallback(new ResultCallback<GoogleSignInResult>() {
                 @Override
                 public void onResult(@NonNull GoogleSignInResult result) {
                     gotGoogleSignInResult(result);
-                    //updateButtonsAndStatusFromSignInResult(result);
-                    //hideProgressIndicator();
                 }
             });
         }
+    }
 
+    private void gotGoogleSignInResult(GoogleSignInResult result) {
+        if (result.isSuccess()) {
+            // Google Sign In was successful, authenticate with Firebase
+            GoogleSignInAccount account = result.getSignInAccount();
+            firebaseAuthWithGoogle(account);
+        } else {
+            int statusCode = result.getStatus().getStatusCode();
+            if (statusCode == GoogleSignInStatusCodes.SIGN_IN_REQUIRED) {
+                Log.d(TAG, "Sign in is required");
+                Toast.makeText(GoogleSignInActivity.this, "Please sign in with you Google account", Toast.LENGTH_SHORT).show();
+                signIn();
+                return;
+            } else if (statusCode == GoogleSignInStatusCodes.SIGN_IN_CANCELLED) {
+                // TODO: Explain to the user that sign in is required, and ask them to try again
+                Log.d(TAG, "User cancelled sign in");
+            } else if (statusCode == GoogleSignInStatusCodes.SIGN_IN_FAILED) {
+                // TODO: Ask user to try again
+                Log.d(TAG, "Sign in failed");
+            }
 
-        findViewById(R.id.button_google_sign_in).setOnClickListener(this);
-        findViewById(R.id.button_google_sign_out).setOnClickListener(this);
-        findViewById(R.id.button_google_share).setOnClickListener(this);
+            Log.d(TAG, result.getStatus().toString());
+            Log.d(TAG, result.getStatus().getStatusMessage());
+            Toast.makeText(this, "You where not logged in with Google", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showProgressIndicator() {
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("Loading...");
+            progressDialog.setIndeterminate(true);
+        }
+
+        progressDialog.show();
+    }
+
+    private void dismissProgressIndicator() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 
     private void signIn() {
@@ -83,27 +115,13 @@ public class GoogleSignInActivity extends AuthActivity implements GoogleApiClien
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
-            gotGoogleSignInResult(Auth.GoogleSignInApi.getSignInResultFromIntent(data));
-        }
-    }
-
-    private void gotGoogleSignInResult(GoogleSignInResult result) {
-        if (result.isSuccess()) {
-            // Google Sign In was successful, authenticate with Firebase
-            GoogleSignInAccount account = result.getSignInAccount();
-            firebaseAuthWithGoogle(account);
-        } else {
-            if (result.getStatus().getStatusCode() == GoogleSignInStatusCodes.SIGN_IN_REQUIRED) {
-                signIn();
-                return;
+            if (resultCode == RESULT_OK) {
+                gotGoogleSignInResult(Auth.GoogleSignInApi.getSignInResultFromIntent(data));
+            } else {
+                Log.d(TAG, "Something went wrong with RC_SIGN_IN. Result code: " + resultCode);
+                Toast.makeText(this, "Something went wrong, please restart the app", Toast.LENGTH_SHORT).show();
             }
-            Log.d(TAG, result.getStatus().toString());
-            Log.d(TAG, result.getStatus().getStatusMessage());
-            // Google Sign In failed, update UI appropriately
-            Toast.makeText(this, "You where not logged in with Google", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -113,35 +131,21 @@ public class GoogleSignInActivity extends AuthActivity implements GoogleApiClien
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         auth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
-
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
+                        if (task.isSuccessful()) {
+                            dismissProgressIndicator();
+                            startActivity(new Intent(GoogleSignInActivity.this, YeyNeyActivity.class));
+                            finish();
+                        } else {
                             Log.w(TAG, "signInWithCredential", task.getException());
                             Toast.makeText(GoogleSignInActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                        } else {
-                            updateUI(auth.getCurrentUser());
                         }
-                        // ...
                     }
                 });
-    }
-
-    private void updateUI(FirebaseUser user) {
-        if (user != null) {
-            findViewById(R.id.button_google_sign_in).setVisibility(View.GONE);
-            findViewById(R.id.button_google_share).setVisibility(View.VISIBLE);
-            findViewById(R.id.button_google_sign_out).setVisibility(View.VISIBLE);
-        } else {
-            findViewById(R.id.button_google_sign_in).setVisibility(View.VISIBLE);
-            findViewById(R.id.button_google_share).setVisibility(View.GONE);
-            findViewById(R.id.button_google_sign_out).setVisibility(View.GONE);
-        }
     }
 
     @Override
@@ -149,24 +153,5 @@ public class GoogleSignInActivity extends AuthActivity implements GoogleApiClien
         // An unresolvable error has occurred and Google APIs (including Sign-In) will not
         // be available.
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
-    }
-
-    private void signOut() {
-        auth.signOut();
-        Auth.GoogleSignInApi.signOut(googleApiClient);
-
-        updateUI(null);
-    }
-
-    @Override
-    public void onClick(View v) {
-        int id = v.getId();
-        if (id == R.id.button_google_sign_in) {
-            signIn();
-        } else if (id == R.id.button_google_sign_out) {
-            signOut();
-        } else if (id == R.id.button_google_share) {
-            startActivity(new Intent(this, YeyNeyActivity.class));
-        }
     }
 }
