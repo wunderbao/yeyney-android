@@ -1,6 +1,7 @@
 package com.yeyney.demo;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,8 +9,8 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -29,7 +30,9 @@ public class ShareActivity extends Activity {
 
     private FirebaseStorage storage;
     private ImageView imageView;
+    private EditText commentView, valueView;
     private String currentPhotoPath;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,10 +43,13 @@ public class ShareActivity extends Activity {
 
         Bundle extras = getIntent().getExtras();
         currentPhotoPath = extras.getString("PHOTO_PATH");
-        imageView = (ImageView) findViewById(R.id.imageView_photo);
+        imageView = (ImageView) findViewById(R.id.imageView_share_photo);
         imageView.setImageURI(Uri.fromFile(new File(currentPhotoPath)));
 
-        Button sendSms = (Button) findViewById(R.id.button_send_sms);
+        commentView = (EditText) findViewById(R.id.editText_share_comment);
+        valueView = (EditText) findViewById(R.id.editText_share_value);
+
+        Button sendSms = (Button) findViewById(R.id.button_share_send_sms);
         sendSms.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -58,7 +64,8 @@ public class ShareActivity extends Activity {
 
         if (requestCode == ContactsActivity.SEND_SMS_REQUEST) {
             if (resultCode == RESULT_OK) {
-                Log.d(TAG, data.getStringExtra("Hello"));
+                showProgressIndicator();
+                final String recipients = data.getStringExtra("recipients");
 
                 StorageReference storageRef = storage.getReferenceFromUrl("gs://yeyney-demo.appspot.com");
                 Uri file = Uri.fromFile(new File(currentPhotoPath));
@@ -66,7 +73,6 @@ public class ShareActivity extends Activity {
                 UploadTask uploadTask = imagesRef.putFile(file);
 
                 // Observe state change events such as progress, pause, and resume
-                Toast.makeText(this, "Starting to upload image", Toast.LENGTH_SHORT).show();
                 uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
@@ -91,18 +97,34 @@ public class ShareActivity extends Activity {
                         Log.d(TAG, "Path: " + imagesRef.getPath());
                         Log.d(TAG, "Task-downloadUrl: " + taskSnapshot.getDownloadUrl());
                         try {
-                            String customMessage = "Hello user! I'm thinking about buying this. Yey or Ney?!" + imagesRef.getPath();
-                            SMSApi.sendSMS("+4747859817", customMessage);
+                            String customMessage = commentView.getText() + "Go to https://www.yeyney.com/shared?image=" + imagesRef.getPath();
+                            SMSApi.sendSMS(recipients, customMessage);
                         } catch (UnauthorizedException e) {
                             e.printStackTrace();
                         } catch (GeneralException e) {
                             e.printStackTrace();
                         }
-                        // cancelProgressBar();
-                        // finish();
+                        dismissProgressIndicator();
+                        finish();
                     }
                 });
             }
+        }
+    }
+
+    private void showProgressIndicator() {
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("Loading...");
+            progressDialog.setIndeterminate(true);
+        }
+
+        progressDialog.show();
+    }
+
+    private void dismissProgressIndicator() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
         }
     }
 }
