@@ -13,8 +13,12 @@ import android.widget.TextView;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
+import com.yeyney.demo.model.Contact;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static android.provider.ContactsContract.CommonDataKinds.Phone;
 import static android.provider.ContactsContract.Contacts;
@@ -100,39 +104,13 @@ public class ContactsAdapter extends CursorAdapter implements View.OnClickListen
         contacts.get(displayName).toggleSelect();
     }
 
-    protected class Contact {
-        private String displayName;
-        private Phonenumber.PhoneNumber number;
-        private String plainNumber;
-        private boolean selected;
-
-        public Contact(String displayName) {
-            this.displayName = displayName;
-            this.selected = false;
+    public ArrayList<Contact> getSelectedContacts() {
+        ArrayList<Contact> selected = new ArrayList<>();
+        for (Contact contact : contacts.values()) {
+            if (contact.isSelected()) {
+                selected.add(contact);
+            }
         }
-
-        public void setNumber(String plainNumber) {
-            this.plainNumber = plainNumber;
-        }
-
-        public void setNumber(Phonenumber.PhoneNumber number) {
-            this.number = number;
-        }
-
-        public String getDisplayName() {
-            return displayName;
-        }
-
-        public String getNumber() {
-            return number == null ? plainNumber : number.toString();
-        }
-
-        public void toggleSelect() {
-            selected = !selected;
-        }
-
-        public boolean isSelected() {
-            return selected;
-        }
+        return selected;
     }
 }

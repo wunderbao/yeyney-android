@@ -1,5 +1,6 @@
 package com.yeyney.demo;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -13,16 +14,14 @@ import com.messagebird.objects.MessageResponse;
 
 public class SMSApi {
 
-    // Create a MessageBirdService
-    private static final MessageBirdService messageBirdService = new MessageBirdServiceImpl("live_8h3ZRQVilRwTfBhyV65xEFSEv");
-    // Add the service to the client
+    private static final MessageBirdService messageBirdService = new MessageBirdServiceImpl("test_fTdqjSGd2gWjhN5VzDqfAt1fl");
     private static final MessageBirdClient messageBirdClient = new MessageBirdClient(messageBirdService);
 
     private static final String TAG = "SMSApi";
+    private static final String originator = "Yey Ney";
 
     public static void sendSMS(String recipients, String messageBody) throws UnauthorizedException, GeneralException {
-        String originator = "Yey Ney Demo";
-        Message message = new Message(originator, messageBody, recipients);
+        Message message = new Message(originator, messageBody, "+4747859817");
         new SendSMSTask().execute(message);
     }
 
@@ -45,9 +44,7 @@ public class SMSApi {
 
         @Override
         protected void onPostExecute(MessageResponse messageResponse) {
-            Log.d(TAG, messageResponse.getDirection());
-            Log.d(TAG, messageResponse.getHref());
-            Log.d(TAG, messageResponse.getId());
+            Log.d(TAG, "Sent " + messageResponse.getRecipients().getTotalSentCount() + " messages.");
         }
     }
 }

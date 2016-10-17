@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -21,8 +22,12 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.messagebird.exceptions.GeneralException;
 import com.messagebird.exceptions.UnauthorizedException;
+import com.yeyney.demo.model.Contact;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class ShareActivity extends Activity {
 
@@ -65,7 +70,9 @@ public class ShareActivity extends Activity {
         if (requestCode == ContactsActivity.SEND_SMS_REQUEST) {
             if (resultCode == RESULT_OK) {
                 showProgressIndicator();
-                final String recipients = data.getStringExtra("recipients");
+                ArrayList<Contact> recipients = (ArrayList<Contact>) data.getSerializableExtra("recipients");
+                final String recipientsAsString = TextUtils.join(",", recipients);
+                // TODO: Recipients needs to be sent to the server, for statistics
 
                 StorageReference storageRef = storage.getReferenceFromUrl("gs://yeyney-demo.appspot.com");
                 Uri file = Uri.fromFile(new File(currentPhotoPath));
@@ -98,7 +105,7 @@ public class ShareActivity extends Activity {
                         Log.d(TAG, "Task-downloadUrl: " + taskSnapshot.getDownloadUrl());
                         try {
                             String customMessage = commentView.getText() + "Go to https://www.yeyney.com/shared?image=" + imagesRef.getPath();
-                            SMSApi.sendSMS(recipients, customMessage);
+                            SMSApi.sendSMS(recipientsAsString, customMessage);
                         } catch (UnauthorizedException e) {
                             e.printStackTrace();
                         } catch (GeneralException e) {

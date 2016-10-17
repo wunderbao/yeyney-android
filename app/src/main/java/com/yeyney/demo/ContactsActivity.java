@@ -15,6 +15,8 @@ import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import java.io.Serializable;
+
 public class ContactsActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor>, TextWatcher, View.OnClickListener {
 
     public static final int SEND_SMS_REQUEST = 128;
@@ -31,7 +33,7 @@ public class ContactsActivity extends Activity implements LoaderManager.LoaderCa
     private static final int SEARCH_AFTER_TEXT_CHANGED = 1024;
 
     private ListView contactsList;
-    private CursorAdapter mCursorAdapter;
+    private ContactsAdapter mCursorAdapter;
     private String mSearchString = "";
 
     public ContactsActivity() {
@@ -101,7 +103,7 @@ public class ContactsActivity extends Activity implements LoaderManager.LoaderCa
     @Override
     public void onClick(View v) {
         Intent intent = new Intent();
-        intent.putExtra("Hello", "world!");
+        intent.putExtra("recipients", mCursorAdapter.getSelectedContacts());
         setResult(RESULT_OK, intent);
         finish();
     }
