@@ -3,20 +3,19 @@
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent" android:layout_height="match_parent">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@android:drawable/ic_menu_camera"
-        android:id="@+id/imageView_yeyney_take_picture"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"/>
-
-    <TextView
+    <Button
         android:text="Tap to snap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView_yeyney_info"
-        android:layout_below="@+id/imageView_yeyney_take_picture"
-        android:layout_centerHorizontal="true"/>
+        android:id="@+id/button_yeyney_snap"
+        android:layout_centerInParent="true" />
+
+    <Button
+        android:text="See votes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_yeyney_votes"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/button_yeyney_snap"/>
 
 </RelativeLayout>

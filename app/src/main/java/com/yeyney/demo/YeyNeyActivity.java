@@ -23,18 +23,19 @@ public class YeyNeyActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_yeyney);
 
-        findViewById(R.id.imageView_yeyney_take_picture).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.button_yeyney_snap).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dispatchTakePictureIntent();
             }
         });
-        findViewById(R.id.textView_yeyney_info).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.button_yeyney_votes).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dispatchTakePictureIntent();
+                startActivity(new Intent(YeyNeyActivity.this, VotesActivity.class));
             }
         });
+
     }
 
     private void dispatchTakePictureIntent() {

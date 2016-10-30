@@ -29,7 +29,7 @@ import org.w3c.dom.Text;
 import java.io.File;
 import java.util.ArrayList;
 
-public class ShareActivity extends Activity {
+public class ShareActivity extends AuthActivity {
 
     private static final String TAG = "ShareActivity";
 
@@ -70,7 +70,7 @@ public class ShareActivity extends Activity {
         if (requestCode == ContactsActivity.SEND_SMS_REQUEST) {
             if (resultCode == RESULT_OK) {
                 showProgressIndicator();
-                ArrayList<Contact> recipients = (ArrayList<Contact>) data.getSerializableExtra("recipients");
+                final ArrayList<Contact> recipients = (ArrayList<Contact>) data.getSerializableExtra("recipients");
                 final String recipientsAsString = TextUtils.join(",", recipients);
                 // TODO: Recipients needs to be sent to the server, for statistics
 
@@ -103,14 +103,7 @@ public class ShareActivity extends Activity {
                         Log.d(TAG, "Name: " + imagesRef.getName());
                         Log.d(TAG, "Path: " + imagesRef.getPath());
                         Log.d(TAG, "Task-downloadUrl: " + taskSnapshot.getDownloadUrl());
-                        try {
-                            String customMessage = commentView.getText() + "Go to https://www.yeyney.com/shared?image=" + imagesRef.getPath();
-                            SMSApi.sendSMS(recipientsAsString, customMessage);
-                        } catch (UnauthorizedException e) {
-                            e.printStackTrace();
-                        } catch (GeneralException e) {
-                            e.printStackTrace();
-                        }
+                        SMSApi.generateAndSendSMS(auth.getCurrentUser().getUid(), recipients, imagesRef, commentView.getText().toString(), valueView.getText().toString());
                         dismissProgressIndicator();
                         finish();
                     }
