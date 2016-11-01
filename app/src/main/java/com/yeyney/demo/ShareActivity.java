@@ -103,7 +103,7 @@ public class ShareActivity extends AuthActivity {
                         Log.d(TAG, "Name: " + imagesRef.getName());
                         Log.d(TAG, "Path: " + imagesRef.getPath());
                         Log.d(TAG, "Task-downloadUrl: " + taskSnapshot.getDownloadUrl());
-                        SMSApi.generateAndSendSMS(auth.getCurrentUser().getUid(), recipients, imagesRef, commentView.getText().toString(), valueView.getText().toString());
+                        SMSApi.generateAndSendSMS(auth.getCurrentUser().getUid(), recipients, taskSnapshot.getDownloadUrl().toString(), commentView.getText().toString(), valueView.getText().toString());
                         dismissProgressIndicator();
                         finish();
                     }

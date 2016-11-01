@@ -1,5 +1,6 @@
 package com.yeyney.demo;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -31,10 +32,10 @@ public class SMSApi {
         new SendSMSTask().execute(message);
     }
 
-    public static void generateAndSendSMS(String uid, ArrayList<Contact> recipients, StorageReference imagesRef, String comment, String value) {
+    public static void generateAndSendSMS(String uid, ArrayList<Contact> recipients, String imagesUrl, String comment, String value) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         String postToken = getRandomHexString(8);
-        addPhotoToUser(database.getReference("shared"), uid, postToken, imagesRef, comment, value);
+        addPhotoToUser(database.getReference("shared"), uid, postToken, imagesUrl, comment, value);
         DatabaseReference users = database.getReference("users");
         for (Contact recipient : recipients) {
             addMissingUser(users, recipient);
@@ -58,14 +59,14 @@ public class SMSApi {
         recipientChild.child("number").setValue(recipient.getNumber());
     }
 
-    private static void addPhotoToUser(DatabaseReference shared, String uid, String postToken, StorageReference imagesRef, String comment, String value) {
+    private static void addPhotoToUser(DatabaseReference shared, String uid, String postToken, String imageUrl, String comment, String value) {
         DatabaseReference userChild = shared.child(uid);
         if (userChild == null) {
             shared.setValue(uid);
             userChild = shared.child(uid);
         }
         DatabaseReference postChild = userChild.child(postToken);
-        postChild.child("image").setValue(imagesRef.getPath());
+        postChild.child("image").setValue(imageUrl);
         postChild.child("message").setValue(comment);
         postChild.child("price").setValue(value);
     }
