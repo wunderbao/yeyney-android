@@ -24,7 +24,6 @@
         </activity>
 
         <activity android:name=".YeyNeyActivity" />
-        <activity android:name=".TwitterLoginActivity" />
         <activity android:name=".ShareActivity" />
         <activity android:name=".GoogleSignInActivity" />
         <activity android:name=".ContactsActivity" />
