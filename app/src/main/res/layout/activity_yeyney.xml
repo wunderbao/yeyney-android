@@ -1,21 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="match_parent" android:layout_height="match_parent">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    <Button
-        android:text="Tap to snap"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/button_yeyney_snap"
-        android:layout_centerInParent="true" />
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
 
-    <Button
-        android:text="See votes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button_yeyney_votes"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/button_yeyney_snap"/>
+        <Button
+            android:id="@+id/button_yeyney_snap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TAP TO SNAP"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display2"/>
 
+        <Button
+            android:id="@+id/button_yeyney_votes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SEE VOTES"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display2"/>
+
+    </LinearLayout>
 </RelativeLayout>

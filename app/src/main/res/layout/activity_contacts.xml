@@ -14,7 +14,8 @@
         android:layout_alignParentTop="true"
         android:ems="10"
         android:hint="Search..."
-        android:inputType="textPersonName" />
+        android:inputType="textPersonName"
+        />
 
     <ListView
         android:id="@+id/listview_contacts"
@@ -31,5 +32,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="Send" />
+        android:text="Send"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"/>
 </RelativeLayout>

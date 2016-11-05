@@ -25,5 +25,6 @@
         android:gravity="center_vertical"
         android:id="@+id/textView_shared_message"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"/>
+        android:layout_alignParentEnd="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"/>
 </RelativeLayout>
