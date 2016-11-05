@@ -1,5 +1,6 @@
 package com.yeyney.demo;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
@@ -14,6 +15,8 @@ public class AuthActivity extends FragmentActivity implements FirebaseAuth.AuthS
 
     protected FirebaseAuth auth;
     protected FirebaseAuth.AuthStateListener authStateListener;
+
+    protected ProgressDialog progressDialog;
 
     protected boolean isSignedIn = false;
 
@@ -50,4 +53,21 @@ public class AuthActivity extends FragmentActivity implements FirebaseAuth.AuthS
             isSignedIn = false;
         }
     }
+
+    protected void showProgressIndicator() {
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("Loading...");
+            progressDialog.setIndeterminate(true);
+        }
+
+        progressDialog.show();
+    }
+
+    protected void dismissProgressIndicator() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
+
 }

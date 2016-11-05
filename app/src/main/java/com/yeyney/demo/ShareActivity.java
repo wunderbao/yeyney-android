@@ -1,6 +1,5 @@
 package com.yeyney.demo;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -20,11 +19,7 @@ import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.messagebird.exceptions.GeneralException;
-import com.messagebird.exceptions.UnauthorizedException;
 import com.yeyney.demo.model.Contact;
-
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -112,7 +107,7 @@ public class ShareActivity extends AuthActivity {
         }
     }
 
-    private void showProgressIndicator() {
+    protected void showProgressIndicator() {
         if (progressDialog == null) {
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage("Loading...");
@@ -122,7 +117,7 @@ public class ShareActivity extends AuthActivity {
         progressDialog.show();
     }
 
-    private void dismissProgressIndicator() {
+    protected void dismissProgressIndicator() {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }

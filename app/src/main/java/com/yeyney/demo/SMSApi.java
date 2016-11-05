@@ -1,12 +1,10 @@
 package com.yeyney.demo;
 
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.StorageReference;
 import com.messagebird.MessageBirdClient;
 import com.messagebird.MessageBirdService;
 import com.messagebird.MessageBirdServiceImpl;
@@ -21,14 +19,15 @@ import java.util.Random;
 
 public class SMSApi {
 
-    private static final MessageBirdService messageBirdService = new MessageBirdServiceImpl("test_fTdqjSGd2gWjhN5VzDqfAt1fl");
+    private static final MessageBirdService messageBirdService = new MessageBirdServiceImpl("mQLAZ1COTsAD06PMHqbicLNhp");
     private static final MessageBirdClient messageBirdClient = new MessageBirdClient(messageBirdService);
 
     private static final String TAG = "SMSApi";
     private static final String originator = "Yey Ney";
 
     public static void sendSMS(String recipients, String messageBody) throws UnauthorizedException, GeneralException {
-        Message message = new Message(originator, messageBody, "+4747859817");
+        Log.d(TAG, recipients);
+        Message message = new Message(originator, messageBody, recipients);
         new SendSMSTask().execute(message);
     }
 
@@ -68,7 +67,7 @@ public class SMSApi {
         DatabaseReference postChild = userChild.child(postToken);
         postChild.child("image").setValue(imageUrl);
         postChild.child("message").setValue(comment);
-        postChild.child("price").setValue(value);
+        postChild.child("price").setValue(Integer.valueOf(value));
     }
 
     private static String getRandomHexString(int numchars) {

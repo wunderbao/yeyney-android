@@ -15,8 +15,6 @@ import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import java.io.Serializable;
-
 public class ContactsActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor>, TextWatcher, View.OnClickListener {
 
     public static final int SEND_SMS_REQUEST = 128;

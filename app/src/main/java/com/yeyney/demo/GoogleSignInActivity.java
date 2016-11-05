@@ -1,11 +1,9 @@
 package com.yeyney.demo;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -21,7 +19,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 public class GoogleSignInActivity extends AuthActivity implements GoogleApiClient.OnConnectionFailedListener {
@@ -30,7 +27,6 @@ public class GoogleSignInActivity extends AuthActivity implements GoogleApiClien
     private static final int RC_SIGN_IN = 256;
 
     private GoogleApiClient googleApiClient;
-    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,22 +84,6 @@ public class GoogleSignInActivity extends AuthActivity implements GoogleApiClien
             Log.d(TAG, result.getStatus().toString());
             Log.d(TAG, result.getStatus().getStatusMessage());
             Toast.makeText(this, "You where not logged in with Google", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void showProgressIndicator() {
-        if (progressDialog == null) {
-            progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage("Loading...");
-            progressDialog.setIndeterminate(true);
-        }
-
-        progressDialog.show();
-    }
-
-    private void dismissProgressIndicator() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
         }
     }
 
