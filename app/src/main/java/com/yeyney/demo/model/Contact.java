@@ -31,7 +31,7 @@ public class Contact implements Serializable {
     }
 
     public String getNumber() {
-        return number == null ? plainNumber : String.valueOf(number.getNationalNumber());
+        return number == null ? plainNumber : String.valueOf(number.getCountryCode()) + String.valueOf(number.getNationalNumber());
     }
 
     public void toggleSelect() {

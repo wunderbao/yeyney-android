@@ -17,7 +17,10 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +33,7 @@ public class VotesActivity extends AuthActivity implements AdapterView.OnItemCli
     private DatabaseReference usersReference;
     private Query sharedReference;
 
-    private List<Shared> sharedList;
+    private LinkedList<Shared> sharedList;
     private Map<String, String> usersMap;
     private VotesArrayAdapter listAdapter;
 
@@ -43,9 +46,9 @@ public class VotesActivity extends AuthActivity implements AdapterView.OnItemCli
         String uid = auth.getCurrentUser().getUid();
         usersReference = firebaseDatabase.getReference("users");
         votesReference = firebaseDatabase.getReference("votes").child(uid);
-        sharedReference = firebaseDatabase.getReference("shared").child(uid).orderByChild("price");
+        sharedReference = firebaseDatabase.getReference("shared").child(uid).orderByChild("created_at");
 
-        sharedList = new ArrayList<>();
+        sharedList = new LinkedList<>();
         usersMap = new HashMap<>();
 
         genereateVotersName();
@@ -81,7 +84,7 @@ public class VotesActivity extends AuthActivity implements AdapterView.OnItemCli
                 shared.price = dataSnapshot.child("price").getValue(Integer.class);
                 shared.image = dataSnapshot.child("image").getValue(String.class);
                 shared.message = dataSnapshot.child("message").getValue(String.class);
-                sharedList.add(shared);
+                sharedList.addFirst(shared);
                 listAdapter.notifyDataSetChanged();
                 dismissProgressIndicator();
             }

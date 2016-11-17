@@ -15,6 +15,7 @@ import com.messagebird.objects.MessageResponse;
 import com.yeyney.demo.model.Contact;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 
 public class SMSApi {
@@ -68,6 +69,7 @@ public class SMSApi {
         postChild.child("image").setValue(imageUrl);
         postChild.child("message").setValue(comment);
         postChild.child("price").setValue(Integer.valueOf(value));
+        postChild.child("created_at").setValue(System.currentTimeMillis());
     }
 
     private static String getRandomHexString(int numchars) {
@@ -87,6 +89,8 @@ public class SMSApi {
         protected MessageResponse doInBackground(Message... messages) {
             for (Message message : messages) {
                 try {
+                    Log.d(TAG, "Sending message to: " + message.getRecipients());
+                    Log.d(TAG, "Body: " + message.getBody());
                     return messageBirdClient.sendMessage(message);
                 } catch (UnauthorizedException | GeneralException e) {
                     e.printStackTrace();
@@ -98,7 +102,7 @@ public class SMSApi {
 
         @Override
         protected void onPostExecute(MessageResponse messageResponse) {
-            Log.d(TAG, "Sent " + messageResponse.getRecipients().getTotalSentCount() + " messages.");
+            Log.d(TAG, "Message was sent.");
         }
     }
 }
